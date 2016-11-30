@@ -1,0 +1,133 @@
+clear;
+%fpath='G:\MCD43C3.005\'; %MODIS数据存储目录
+%fname=dir([fpath '*20*.*']);
+
+
+[xx,yy]=meshgrid(-180+0.025:0.05:180-0.025,90-0.025:-0.05:-90+0.025); %MODIS数据分辨率为0.05度，
+indx=find(xx(1,:) > 70 & xx(1,:) < 135);
+indy=find(yy(:,1) > 15 & yy(:,1) < 55);
+xx=xx(indy,indx);
+yy=yy(indy,indx);
+
+%=====================================================
+%stns=struct('fn',{'Tongyu','Hefei','Panyu','Kunming','Nanjing','Lasha','Dunhuang','Lanzhou'},...
+%            'id',{770,835,548,929,528,631,32,458},...
+%            'lat',{ 44.42, 31.8333, 23.000, 25.01, 32.200,29.50,40.15, 36.05},...
+%            'lon',{122.92,117.3291,113.354,102.65,118.717,91.13,94.68,103.88});
+stns=struct('fn',{'Shangdianzi'},...
+            'id',{980},...
+            'lat',{40.65},...
+            'lon',{117.108});
+                
+            
+for istns=1:length(stns);
+    xlon=stns(istns).lon;
+    ylat=stns(istns).lat;
+    dis=(ylat-yy).^2+(xlon-xx).^2;
+    [py(istns),px(istns)]=find(dis==min(dis(:))); %台站网格点的位置
+end;
+
+% stns=[25.01,102.65];
+% dis=(stns(1)-yy).^2+(stns(2)-xx).^2;
+% [py,px]=find(dis==min(dis(:))); %台站网格点的位置
+%======================================================
+
+
+
+brdf=[];
+%==================================================
+%读取MODIS/BRDF数据
+fpath='G:\MCD43C1\'; %MODIS数据存储目录
+fname=dir([fpath '*2*.*']);
+nday=0;
+for id=1:length(fname);
+% for id=1:1;
+    file=fname(id).name;
+%========================================================
+%确定选择那段时间读取MODIS BRDF数据
+    if( str2num(file(1:4))>=2012);    
+        nday=nday+1;
+%========================================================        
+        yyyy(nday)=str2num(file(1:4));
+        mm(nday)=str2num(file(6:7));
+        dd(nday)=str2num(file(9:10));
+        %[mm dd]=calc_day(yyyy,jday);
+%         fprintf(fid,'%6i %4i %4i\n',yyyy,mm,dd);
+        fn=dir([fpath file '\*hdf']);
+        for iw=1:7;
+            for ip=1:3;
+                wbrdf=hdfread([fpath file '\' fn.name],['BRDF_Albedo_Parameter' num2str(ip) '_Band' num2str(iw)]);
+                cbrdf=double(wbrdf(indy,indx));
+                cbrdf(cbrdf==32767)=NaN;
+                for istns=1:length(stns);
+                    gbrdf=double(cbrdf(py(istns)-2:py(istns)+2,px(istns)-2:px(istns)+2)); %取台站周围3*3个网格点平均
+                    gbrdf=nanmean(gbrdf(:))/1000;
+                    if(isnan(gbrdf)==0);
+                        brdf(istns,nday,iw,ip)=gbrdf;
+                    else;
+                        brdf(istns,nday,iw,ip)=NaN;
+                    end;
+                end;
+            end;
+        end;
+    end;
+end;
+%fclose(fid);
+%===================================================
+for istns=1:length(stns);
+    fid=fopen(['G:\AERONET_INVERSION\modis_brdf\MCD43C1_' stns(istns).fn '_' num2str(stns(istns).id) '.brdf'],'w');
+    for id=1:length(brdf(istns,:,1,1));
+        stns_brdf=squeeze(brdf(istns,id,:,:));
+        if(sum(isnan(stns_brdf(:))==0)==21);
+            fprintf(fid,'%6i %4i %4i\n',yyyy(id),mm(id),dd(id));
+            for iw=1:7;
+                fprintf(fid,'%12.6f %12.6f %12.6f\n',stns_brdf(iw,:));
+            end;
+        end;
+    end;
+    fclose(fid);
+end;
+        
+       
+
+
+
+
+
+
+
+
+%========================================================
+% 读取MODIS/ALBEDO数据
+% brdf=[];
+% fid=fopen(['D:\project\fortran\AERONET_INVERSION\modis_brdf\MCD43C3_' stns_fn '_' stns_id '.albedo'],'w');
+% % for id=1:length(fname);
+% for id=108:108;
+%     file=fname(id).name;
+%     if( strcmp(file(1:4),'2008')==1 | strcmp(file(1:4),'2009') ==  1);
+%         
+%         yyyy=str2num(file(1:4));
+%         mm=str2num(file(6:7));
+%         dd=str2num(file(9:10));
+%         fprintf(fid,'%6i %4i %4i\n',yyyy,mm,dd);
+%         fn=dir([fpath file '\*hdf']);
+%         for iw=1:7;
+%             bp=double(hdfread([fpath file '\' fn.name],['Albedo_BSA_Band' num2str(iw)]));
+%             bp=bp(indy,indx);
+%             bp=double(bp(py-1:py+1,px-1:px+1)); %取台站周围3*3个网格点平均
+%             bp(bp==32767)=NaN;
+%         
+%             bp=nanmean(bp(:))/1000;
+%             if(isnan(bp)==0);
+%                 brdf(1,iw)=bp;
+%             else    ;
+%                 brdf(1,iw)=-999;
+%             end;
+%         end;
+%         fprintf(fid,'%12.6f %12.6f %12.6f %12.6f %12.6f %12.6f %12.6f\n',brdf);
+%     end;
+% end;
+% fclose(fid);
+%==================================================
+
+
