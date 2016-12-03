@@ -163,8 +163,8 @@ c      INTEGER LOZ,LWV
       CHARACTER*500 STRING
 	CHARACTER*2 MON(12),DAY(31),YEAR(2),TT(60)
 	DIMENSION MONTHDAY(12)
-	CHARACTER STNS_FN*100,STNS_ID*100,FDATA*100
-	CHARACTER FOUT*100,UTC*6,FIPT*100,FDAT*100,FBRDF*100
+	CHARACTER STNS_FN*100,STNS_ID*100,FDATA*256
+	CHARACTER FOUT*256,UTC*6,FIPT*256,FDAT*256,FBRDF*256
 	CHARACTER OBSDATE1*10,OBSDATE2*10,TDATE(KNDAYS)*6
 	DOUBLE PRECISION CIMELWAVE(4),MODISWAVE(7)
 	DOUBLE PRECISION BRDF(KNDAYS,7,3),DAYBRDF(7,3),CIMELBRDF(4,3)
@@ -217,18 +217,25 @@ C     注意中心波长!
 
 
 c     台站名称以及台站仪器标号，数据文件前缀
-	STNS_FN='hangzhou'
-	STNS_ID='808'
-	FDATA='hangzhou-808-1'
+c	STNS_FN='hangzhou' !!! from command line arguments
+	getarg(1,STNS_FN)
+c	STNS_ID='808' !!! from command line arguments
+	getarg(2,STNS_ID)
+c	FDATA='hangzhou-808-1' !!! from command line arguments
+	getarg(3,FDATA)
 C	TO CREATE INPUT FILE TITLE FOR AERONET INVERSION
 c	存放参数文件以及数据文件主目录
 C     	FIPT='G:\AERONET_INVERSION\ins_para\'
-      FIPT='H:\AERONET_INVERSION\ins_para\'
+c      FIPT='H:\AERONET_INVERSION\ins_para\' !!! from command line arguments
+	getarg(4,FIPT)
 c	存储AERONET反演算法所需输入输入文件的目录
-	FOUT='H:\AERONET_INVERSION\input\'
-     &	//trim(STNS_FN)//'\' 
-	FBRDF='H:\AERONET_INVERSION\modis_brdf\' 
-	FDAT='H:\AERONET_INVERSION\data\'	
+c	FOUT='H:\AERONET_INVERSION\input\' !!! from command line arguments
+c     &	//trim(STNS_FN)//'\'
+	getarg(5,FOUT) 
+c	FBRDF='H:\AERONET_INVERSION\modis_brdf\'  !!! from command line arguments
+	getarg(6,FBRDF)
+c	FDAT='H:\AERONET_INVERSION\data\'	!!! from command line arguments
+	getarg(7,FDAT)
 	OPEN(250,FILE=TRIM(FOUT)//'FNAME.TXT',STATUS='UNKNOWN')
 
 	FILER=TRIM(FDAT)//TRIM(STNS_FN)//'\'//TRIM(FDATA)//'.ALR' 
