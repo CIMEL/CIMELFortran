@@ -231,7 +231,7 @@ c      FIPT='H:\AERONET_INVERSION\ins_para\' !!! from command line arguments
 c	存储AERONET反演算法所需输入输入文件的目录
 c	FOUT='H:\AERONET_INVERSION\input\' !!! from command line arguments
 c     &	//trim(STNS_FN)//'\'
-	getarg(5,FOUT) 
+	getarg(5,FOUT)
 c	FBRDF='H:\AERONET_INVERSION\modis_brdf\'  !!! from command line arguments
 	getarg(6,FBRDF)
 c	FDAT='H:\AERONET_INVERSION\data\'	!!! from command line arguments
