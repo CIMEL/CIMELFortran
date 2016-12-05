@@ -9,7 +9,7 @@
 
 c	47,161	182	185 197 220 239,244 253 258    
 c	STNSSTR='hangzhou' !!! get from command line args
-	getarg(1,STNSSTR)
+	call getarg(1,STNSSTR)
 	OPEN(2011,FILE='INPUT\'//TRIM(STNSSTR)//'\FNAME.TXT',STATUS='OLD')
 C	fname='Oleg_Mongu'
 c	FNAME='Ulumqi591080217043048'

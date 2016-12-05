@@ -218,28 +218,30 @@ C     注意中心波长!
 
 c     台站名称以及台站仪器标号，数据文件前缀
 c	STNS_FN='hangzhou' !!! from command line arguments
-	getarg(1,STNS_FN)
+	call getarg(1,STNS_FN)
 c	STNS_ID='808' !!! from command line arguments
-	getarg(2,STNS_ID)
+	call getarg(2,STNS_ID)
 c	FDATA='hangzhou-808-1' !!! from command line arguments
-	getarg(3,FDATA)
+	call getarg(3,FDATA)
 C	TO CREATE INPUT FILE TITLE FOR AERONET INVERSION
 c	存放参数文件以及数据文件主目录
 C     	FIPT='G:\AERONET_INVERSION\ins_para\'
 c      FIPT='H:\AERONET_INVERSION\ins_para\' !!! from command line arguments
-	getarg(4,FIPT)
+	call getarg(4,FIPT)
 c	存储AERONET反演算法所需输入输入文件的目录
 c	FOUT='H:\AERONET_INVERSION\input\' !!! from command line arguments
 c     &	//trim(STNS_FN)//'\'
-	getarg(5,FOUT)
+	call getarg(5,FOUT)
 c	FBRDF='H:\AERONET_INVERSION\modis_brdf\'  !!! from command line arguments
-	getarg(6,FBRDF)
+	call getarg(6,FBRDF)
 c	FDAT='H:\AERONET_INVERSION\data\'	!!! from command line arguments
-	getarg(7,FDAT)
+	call getarg(7,FDAT)
 	OPEN(250,FILE=TRIM(FOUT)//'FNAME.TXT',STATUS='UNKNOWN')
 
-	FILER=TRIM(FDAT)//TRIM(STNS_FN)//'\'//TRIM(FDATA)//'.ALR' 
-	FILEL=TRIM(FDAT)//TRIM(STNS_FN)//'\'//TRIM(FDATA)//'.ALL'
+c	FILER=TRIM(FDAT)//TRIM(STNS_FN)//'\'//TRIM(FDATA)//'.ALR' !!!
+c	FILEL=TRIM(FDAT)//TRIM(STNS_FN)//'\'//TRIM(FDATA)//'.ALL' !!!
+	FILER=TRIM(FDAT)//'\'//TRIM(FDATA)//'.ALR' !!!
+	FILEL=TRIM(FDAT)//'\'//TRIM(FDATA)//'.ALL' !!!
 
 c	生成FNAME
       OPEN(UNIT=20,FILE=TRIM(FOUT)//'FNAME',STATUS='UNKNOWN')
