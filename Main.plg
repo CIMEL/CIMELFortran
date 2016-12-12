@@ -3,14 +3,111 @@
 <pre>
 <h1>Build Log</h1>
 <h3>
---------------------Configuration: Main - Win32 Debug--------------------
+--------------------Configuration: Main - Win32 Release--------------------
 </h3>
 <h3>Command Lines</h3>
+Creating temporary file "C:\Users\IEUser\AppData\Local\Temp\RSPC714.tmp" with contents
+[
+/compile_only /nologo /warn:nofileopt /module:"Release/" /object:"Release/" 
+"E:\AeronetInversion\AERONET_INVERSION\SMOOTH.JUL.01.f"
+"E:\AeronetInversion\AERONET_INVERSION\mo_par_DLS.f90"
+"E:\AeronetInversion\AERONET_INVERSION\sizedstr.f90"
+"E:\AeronetInversion\AERONET_INVERSION\Main.f"
+"E:\AeronetInversion\AERONET_INVERSION\iterqP_N.f"
+"E:\AeronetInversion\AERONET_INVERSION\intrpl_spline.f90"
+"E:\AeronetInversion\AERONET_INVERSION\intrpl_linear.f90"
+"E:\AeronetInversion\AERONET_INVERSION\phase_func.f90"
+"E:\AeronetInversion\AERONET_INVERSION\matrix_optchr_LS.f"
+"E:\AeronetInversion\AERONET_INVERSION\fishmxSP_POL.f"
+"E:\AeronetInversion\AERONET_INVERSION\COMMON_shura.f"
+"E:\AeronetInversion\AERONET_INVERSION\BIBOD.f"
+"E:\AeronetInversion\AERONET_INVERSION\BIBATM.f"
+"E:\AeronetInversion\AERONET_INVERSION\back_out_shura.f"
+"E:\AeronetInversion\AERONET_INVERSION\alloc1.f90"
+"E:\AeronetInversion\AERONET_INVERSION\alloc.f90"
+"E:\AeronetInversion\AERONET_INVERSION\matrix_intrpl_LS.f"
+"E:\AeronetInversion\AERONET_INVERSION\matrix_fixget_S.f"
+"E:\AeronetInversion\AERONET_INVERSION\iP2003LAST_shura.f"
+]
+Creating temporary file "C:\Users\IEUser\AppData\Local\Temp\RSPC715.tmp" with contents
+[
+kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /incremental:no /pdb:"Release/Main.pdb" /machine:I386 /out:"Release/Main.exe" 
+.\Release\alloc.obj
+.\Release\alloc1.obj
+.\Release\back_out_shura.obj
+.\Release\BIBATM.obj
+.\Release\BIBOD.obj
+.\Release\COMMON_shura.obj
+.\Release\fishmxSP_POL.obj
+.\Release\intrpl_linear.obj
+.\Release\intrpl_spline.obj
+.\Release\iP2003LAST_shura.obj
+.\Release\iterqP_N.obj
+.\Release\Main.obj
+.\Release\matrix_fixget_S.obj
+.\Release\matrix_intrpl_LS.obj
+.\Release\matrix_optchr_LS.obj
+.\Release\mo_par_DLS.obj
+.\Release\phase_func.obj
+.\Release\sizedstr.obj
+.\Release\SMOOTH.JUL.01.obj
+]
+Creating command line "link.exe @C:\Users\IEUser\AppData\Local\Temp\RSPC715.tmp"
+<h3>Output Window</h3>
+Compiling Fortran...
+E:\AeronetInversion\AERONET_INVERSION\SMOOTH.JUL.01.f
+E:\AeronetInversion\AERONET_INVERSION\mo_par_DLS.f90
+E:\AeronetInversion\AERONET_INVERSION\sizedstr.f90
+E:\AeronetInversion\AERONET_INVERSION\Main.f
+E:\AeronetInversion\AERONET_INVERSION\iterqP_N.f
+E:\AeronetInversion\AERONET_INVERSION\intrpl_spline.f90
+E:\AeronetInversion\AERONET_INVERSION\intrpl_linear.f90
+E:\AeronetInversion\AERONET_INVERSION\phase_func.f90
+E:\AeronetInversion\AERONET_INVERSION\matrix_optchr_LS.f
+E:\AeronetInversion\AERONET_INVERSION\fishmxSP_POL.f
+E:\AeronetInversion\AERONET_INVERSION\COMMON_shura.f
+E:\AeronetInversion\AERONET_INVERSION\COMMON_shura.f(19326) : Warning: Variable KNAV is used before its value has been defined
+      if(KNAV.eq.1.or.KNAV.eq.3)goto 222
+---------^
+E:\AeronetInversion\AERONET_INVERSION\BIBOD.f
+E:\AeronetInversion\AERONET_INVERSION\BIBOD.f(3682) : Warning: Variable SC is used before its value has been defined
+         IF (SC.NE.987)
+-------------^
+E:\AeronetInversion\AERONET_INVERSION\BIBOD.f(3693) : Warning: Variable RMACH is used before its value has been defined
+         RATIO = EPS / RMACH(4)
+-----------------------^
+E:\AeronetInversion\AERONET_INVERSION\BIBATM.f
+E:\AeronetInversion\AERONET_INVERSION\back_out_shura.f
+E:\AeronetInversion\AERONET_INVERSION\back_out_shura.f(4986) : Warning: Variable CEXTIN is used before its value has been defined
+          AE=AE+CEXTIN*AAA/1000.
+----------------^
+E:\AeronetInversion\AERONET_INVERSION\back_out_shura.f(4987) : Warning: Variable CSCAT is used before its value has been defined
+          AAB=AAB+(CEXTIN-CSCAT)*AAA/1000.
+--------------------------^
+E:\AeronetInversion\AERONET_INVERSION\back_out_shura.f(976) : Warning: Variable RGMIN is used before its value has been defined
+   pomin=pi2*rgmin/wlmax
+----------------------------------^
+E:\AeronetInversion\AERONET_INVERSION\back_out_shura.f(976) : Warning: Variable WLMAX is used before its value has been defined
+   pomin=pi2*rgmin/wlmax
+----------------------------------------^
+E:\AeronetInversion\AERONET_INVERSION\back_out_shura.f(977) : Warning: Variable RGMAX is used before its value has been defined
+   pomax=pi2*rgmax/wlmin  
+----------------------------------^
+E:\AeronetInversion\AERONET_INVERSION\back_out_shura.f(977) : Warning: Variable WLMIN is used before its value has been defined
+   pomax=pi2*rgmax/wlmin  
+----------------------------------------^
+E:\AeronetInversion\AERONET_INVERSION\alloc1.f90
+E:\AeronetInversion\AERONET_INVERSION\alloc.f90
+E:\AeronetInversion\AERONET_INVERSION\matrix_intrpl_LS.f
+E:\AeronetInversion\AERONET_INVERSION\matrix_fixget_S.f
+E:\AeronetInversion\AERONET_INVERSION\iP2003LAST_shura.f
+Linking...
+Release/Main.exe : warning LNK4084: total image size 787902464 exceeds max (268435456); image may not run
 
 
 
 <h3>Results</h3>
-Main.exe - 0 error(s), 0 warning(s)
+Main.exe - 0 error(s), 10 warning(s)
 </pre>
 </body>
 </html>
