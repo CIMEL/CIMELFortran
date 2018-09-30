@@ -33,7 +33,7 @@
 !      "Comparison of AERONET and SKYRAD4.2 inversion products retrieved from a Cimel CE318 sunphotometer", 
 !      Atmospheric Measurement Techniques, 2011.
 !
-      PARAMETER(KNDAYS=1000)
+      PARAMETER(KNDAYS=2000)
       PARAMETER(KNMET=1000)
       PARAMETER(KNW=10)
       PARAMETER(KNF=12)
@@ -182,7 +182,7 @@ c      INTEGER LOZ,LWV
 !      5. 500 NM
 !      17. 1640 NM
 !     注意用中心波长最好!
-	DATA CIMELWAVE/0.440,0.675,0.870,1.020/
+	DATA CIMELWAVE/0.4406,0.6742,0.8702,1.0197/
 	DATA MODISWAVE/0.470,0.555,0.659,0.858,1.240,1.640,2.130/
       DATA ANGKRN/0.6,1.,1.5,2.,2.5,3.,3.5,4.,4.5,5.,6.,7.,8.,9.,10.,
      112.5,15.,17.5,20.,25.,30.,35.,40.,45.,50.,55.,60.,65.,70.,75.,80.,
@@ -236,6 +236,7 @@ c	FBRDF='H:\AERONET_INVERSION\modis_brdf\'  !!! from command line arguments
 	call getarg(6,FBRDF)
 c	FDAT='H:\AERONET_INVERSION\data\'	!!! from command line arguments
 	call getarg(7,FDAT)
+cz	write(*,*) FOUT 				   
 	OPEN(250,FILE=TRIM(FOUT)//'FNAME.TXT',STATUS='UNKNOWN')
 
 c	FILER=TRIM(FDAT)//TRIM(STNS_FN)//'\'//TRIM(FDATA)//'.ALR' !!!
@@ -249,24 +250,27 @@ c	生成FNAME
 	OBSDATE2='01/01/1990'
 	ND=0
 	DO I=1,10000000
+cz	write(*,*) I			   
 		READ(10,'(A10)',END=991)OBSDATE1
+cz	write(*,*)OBSBATE1					 
 		IF(OBSDATE1(1:1).NE.'D')THEN
 			IF(TRIM(OBSDATE1).NE.TRIM(OBSDATE2))THEN
 				ND=ND+1
 				TDATE(ND)=OBSDATE1(9:10)//OBSDATE1(4:5)//OBSDATE1(1:2)
-c				WRITE(20,*)OBSDATE1(9:10)//OBSDATE1(4:5)//OBSDATE1(1:2)
+cz				WRITE(*,*)OBSDATE1(9:10)//OBSDATE1(4:5)//OBSDATE1(1:2)
 				OBSDATE2=OBSDATE1
 			ENDIF
 		ENDIF
 	ENDDO
 991	CONTINUE
-
+cz      write(*,*)ND
 	DO I=1,ND
 		DO J=I+1,ND
 			IF(TDATE(I).EQ.TDATE(J))THEN
 				TDATE(J)='999999'
 			ENDIF
 		ENDDO
+cz	write(*,*)TDATE(I)
 	IF(TDATE(I).NE.'999999')WRITE(20,*)TDATE(I)
 	ENDDO
 c				
@@ -278,8 +282,9 @@ C	STOP
 c	to read modis brdf parameter
 	OPEN(125,
      &FILE=TRIM(FBRDF)//'MCD43C3_'//TRIM(STNS_FN)//
-     &'_'//TRIM(STNS_ID)//'.BRDF'
+     &'_'//TRIM(STNS_ID)//'_WSA.BRDF'
      &	,STATUS='OLD')
+CZ	 write(*,*)FILE
 	NUMBRDF=0
 	DO ID=1,KNDAYS
 		READ(125,*,END=999)(MODISDATE(ID,K),K=1,3)
@@ -293,6 +298,7 @@ c	to read modis brdf parameter
 
 		DO IW=1,7
 			READ(125,*,END=999)(BRDF(ID,IW,K),K=1,3)
+cz	WRITE(*,*)(BRDF(ID,IW,K),K=1,3)
 		ENDDO
 	ENDDO
 999	CONTINUE
@@ -308,12 +314,12 @@ C	TO READ OZONE DATA
 	DO I=1,KNDAYS
 		READ(120,*,END=998)(METEODATE(I,K),K=1,4),XX,OZONE(I)
 		NOZONE=NOZONE+1
+CZ	WRITE(*,*)(METEODATE(I,K),K=1,4),XX,OZONE(I)
 	ENDDO
 998	CONTINUE
-cz      write(*,*)NOZONE
 
 
-	
+
 !	TO READ PARAMETERS FROM PARAMETER FILE 'CEFORM.PAR'
 	CALL RDPAR(FIPT,ALNGS,LATDEG,LONDEG,HGTASL,NW9,WVL9,IFLT9,IWVL9,
      1SELCIMPROC,SERIALNUMBER,AURSKY,NDIRCAL,DYCAL,DMCAL,DDCAL,
@@ -322,7 +328,7 @@ cz      write(*,*)NOZONE
 	1SYCAL,SMCAL,SDCAL,SHHCAL,SMMCAL,
 	1AURCALDATE9,AURCALTIME9,AURCAL9,SKYCAL9,STNS_ID)
 
-
+CZ      WRITE(*,*)ALNGS,LATDEG,LONDEG
 !     Reads date to be processed
       OPEN(UNIT=30,FILE=TRIM(FOUT)//'FNAME',STATUS='OLD')
 
@@ -331,9 +337,9 @@ C	DO 190 IJK=1,1
 		READ(30,*,END=9999) CDATE
 C		BACKSPACE(30)
 C		CDATE='120620'
-C     注释掉，加快处理数据的速度！2013-6-15 CHE HZ
-C		WRITE(*,*)CDATE
+		WRITE(*,*)CDATE
 		READ(CDATE,1000) YY,MM,DD 
+CZ	WRITE(*,*)YY,MM,DD 
  1000		FORMAT(3I2)
 		
 		
@@ -342,10 +348,12 @@ C		WRITE(*,*)CDATE
      &	NFILTROR,DDR,MMR,YYR,HR,MR,SR,RVDIR,RVAUR,RVSKY,RTEMP,LONDEG)
 		CALL GET_DAILY_ALM(FILEL,CDATE,NBL,
      &	NFILTROL,DDL,MML,YYL,HL,ML,SL,LVDIR,LVAUR,LVSKY,LTEMP,LONDEG)
-
+CZ      WRITE(*,*)NBL
+CZ       WRITE(*,*)NBR 
 !     Filter for corrupted data (code 1: unpaired branches)
 !	Right and left almucantar scanning number should be equal
-		IF(NBR.GT.0.AND.NBR.GT.0)THEN
+		IF(NBR.GT.0.AND.NBL.GT.0)THEN
+CZ	write(*,*)NBR
 			IF(NBR.NE.NBL) THEN
 				WRITE(*,*) 'Warning!: uncomplete almucantar files (code 1)' 
 			ENDIF
@@ -353,34 +361,43 @@ C======================================================
 !	to derive MODIS BRDF data,找到最近且有MODIS观测数据的BRDF作为该日BRDF参数
 			IDAY=0
 			DO J=1,MM
+
 				IDAY=IDAY+DAYSXMONTH(J)
+	
 			ENDDO
 			IDAY=IDAY+DD
 			IJUL=IDAY+(YY+2000-1990)*365	!OBSERVATION DAY
 			
-			
 			IX1=1000
 			IPOS1=0
 			DO ID=1,NUMBRDF
+CZ	write(*,*)ABS(IJUL-MODISJD(ID))
 				IF(ABS(IJUL-MODISJD(ID)).LT.IX1)THEN
 					IX1=ABS(IJUL-MODISJD(ID))
 					IPOS1=ID
+CZ	WRITE(*,*)IPOS1
 				ENDIF
 			ENDDO
 
 			IX2=1000
 			IPOS2=0
 			DO ID=IPOS1-1,IPOS1+1,2
+CZ      WRITE(*,*)ID
+CZ      WRITE(*,*)MODISJD(1)
 				IF(ABS((MODISJD(ID)-IJUL)).LT.IX2)THEN
 					IX2=ABS(IJUL-MODISJD(ID))
+
 					IPOS2=ID
 				ENDIF
+CZ	WRITE(*,*)IPOS2
 			ENDDO
 			
 			DO IW=1,7
+CZ	WRITE(*,*)IW
 				DO IP=1,3
 					DAYBRDF(IW,IP)=(BRDF(IPOS1,IW,IP)*IPOS2+
      &				BRDF(IPOS2,IW,IP)*IPOS1)/(IPOS1+IPOS2)
+CZ      write(*,*)DAYBRDF(IW,IP)
 				ENDDO
 			ENDDO
 
@@ -403,24 +420,11 @@ C			将MODIS波段BRDF参数差值到CIMEL波段
 				ENDDO
 			ENDDO
 
-c	处理海上平台，将渤海反照率均设为0.10 CAMS这里，假设albedo取的是AERONET-cams的平均值。
-			IF(STNS_ID.EQ.'000')THEN
-
-C      26:03:2013	0:58:05 0.05547	0.13721	0.19378	0.20048 地表反照率
-c					CIMELBRDF(1,1)=0.05547
-c	                CIMELBRDF(2,1)=0.13721	
-c	                CIMELBRDF(3,1)=0.19378
-c					CIMELBRDF(4,1)=0.20048
-
-c       				CIMELBRDF(1,1)=0.05394463
-c	                CIMELBRDF(2,1)=0.131445556	
-c	                CIMELBRDF(3,1)=0.178351481
-c					CIMELBRDF(4,1)=0.186438111			
-C					CIMELBRDF(1,1)=CIMELBRDF(1,1)/1.6
-C	                CIMELBRDF(2,1)=CIMELBRDF(2,1)*2.3
-C	                CIMELBRDF(3,1)=CIMELBRDF(3,1)*2
-C					CIMELBRDF(4,1)=CIMELBRDF(4,1)*1.55
-			
+c	处理海上平台，将渤海反照率均设为0.10
+			IF(STNS_ID.EQ.'893')THEN
+				DO IW=1,4
+					CIMELBRDF(IW,1)=0.1
+				ENDDO
 			ENDIF
 					
 
@@ -620,10 +624,10 @@ c	确保输出中的排列顺序是按照参数文件中给定的排序：先读取IFLT的排序并确定相应的波
 				OFOIRRAD(I)=0.5*(RFOIRRAD(I)+LFOIRRAD(I))
 		!	to calculate optical depth
 				IF(RVDIR(I).GT.50.AND.LVDIR(I).GT.50)THEN
+cz				IF(RVDIR(I).GT.10.AND.LVDIR(I).GT.10)THEN
 					ROD(I)=-LOG(RVDIR(I)/DCAL(L)/DST**2)/MASAR(I)
 					LOD(I)=-LOG(LVDIR(I)/DCAL(L)/DST**2)/MASAL(I)
 					OOD(I)=(ROD(I)+LOD(I))/2
-C	WRITE(*,*) 'ROD(I)=', ROD(I),'LOD(I)=', LOD(I)
 				ELSE
 					ROD(I)=-9.9
 					LOD(I)=-9.9
@@ -641,6 +645,7 @@ C     1ftop(l),dcal(l),lfoirrad(i)
 				DO J=1,29
 					IF(J.NE.6) THEN
 						IF(RVDIR(I).GT.50.AND.LVDIR(I).GT.50) THEN
+cz						IF(RVDIR(I).GT.10.AND.LVDIR(I).GT.10) THEN
 		!					RRATIO(JJ,I)=ALMA(J,I)/(RFOIRRAD(I)*MASAR(I))
 		!					LRATIO(JJ,I)=ALMB(J,I)/(LFOIRRAD(I)*MASAL(I))
 						RRATIO(JJ,I)=ALMA(J,I)*PI/(FSOL(I)/DST**2)*1.0
@@ -689,12 +694,10 @@ C	VARIABLE 3: OFLAG(28,NBR), INDICATOR OF VALID/INVALID MEASUREMENTS
 
 
 			DO I=1,NBR/NW
-C     车慧正测试UTC，2013-6-11 (HR((I-1)*NW+1)+1)是440nm观测的时间，+4是1020nm的观测时间；NW是选择的波段，4个波段，440-675-870-1020. BY CHE
-c		WRITE(*,*)HR((I-1)*NW+4),MR((I-1)*NW+4),SR((I-1)*NW+4)
-C          WRITE(*,*)((I-1)*NW+1),'nw',NW
-c		WRITE(*,*)TT(HR((I-1)*NW+4)+1)
-c		WRITE(*,*)TT(MR((I-1)*NW+4)+1)
-c		WRITE(*,*)TT(SR((I-1)*NW+4)+1)
+C		WRITE(*,*)HR((I-1)*NW+1),MR((I-1)*NW+1),SR((I-1)*NW+1)
+C		WRITE(*,*)TT(HR((I-1)*NW+1)+1)
+C		WRITE(*,*)TT(MR((I-1)*NW+1)+1)
+C		WRITE(*,*)TT(SR((I-1)*NW+1)+1)
 				NVALID=0
 				OBS1(:,1:NW)=ORATIO(:,(I-1)*NW+1:I*NW)	!PI*I/F0
 				IND(:,1:NW)=OFLAG(:,(I-1)*NW+1:I*NW)	!VALID INDICATOR
@@ -708,6 +711,9 @@ c		WRITE(*,*)TT(SR((I-1)*NW+4)+1)
 				DSZA(1:NW)=
      &			(ZNR((I-1)*NW+1:I*NW)+ZNL((I-1)*NW+1:I*NW))/2*180/PI
 				DO J=1,28
+!          有效观测波段等于4，且角度大于4，
+cz         修改这个条件为大于3 by Jun Zhu
+cz               IF(SUM(IND(J,:)).GE.3.AND.ANG1(J).GE.3)THEN
 					IF(SUM(IND(J,:)).EQ.4.AND.ANG1(J).GE.4)THEN			!OBSERVATIONS AT FOUR WAVELENGTH ARE VALID
 						NVALID=NVALID+1
 						OBS2(NVALID,1:NW)=OBS1(J,1:NW)
@@ -715,21 +721,23 @@ c		WRITE(*,*)TT(SR((I-1)*NW+4)+1)
 						ANG2(NVALID)=ANG1(J)
 					ENDIF
 				ENDDO
-!		有效观测数据：每次观测有15个角度有效，所有TOD大于0，2013-6-13 corrected as: HR((I-1)*NW+4)+1，1020nm观测的时间，原来HR((I-1)*NW+1)+1，是440的时间-BY CHE
-				IF(NVALID.GE.15.AND.NTOD.EQ.NW)THEN 
-					UTC=TT(HR((I-1)*NW+4)+1)//TT(MR((I-1)*NW+4)+1)
-	1				//TT(SR((I-1)*NW+4)+1)
+!		有效观测数据：每次观测有15个角度有效，所有TOD大于0
+cz			write(*,*)NVALID,NTOD
+cz			IF(NVALID.GE.15.AND.NTOD.EQ.NW)THEN  !modified by Jun Zhu
+				IF(NVALID.GE.5)THEN
+					UTC=TT(HR((I-1)*NW+1)+1)//TT(MR((I-1)*NW+1)+1)
+	1				//TT(SR((I-1)*NW+1)+1)
 
 					WRITE(250,'(A30)')TRIM(STNS_FN)//'_'//
      1				TRIM(STNS_ID)//'_'//CDATE//'_'//UTC
-
+cz					write(*,*)UTC
 					OPEN(101,FILE=
      1				TRIM(FOUT)//TRIM(STNS_FN)//'_'//TRIM(STNS_ID)//'_'
      2				//CDATE//'_'//UTC//'.TXT',STATUS='UNKNOWN')
 
 					WRITE(101,'(9I5)')NW*(NVALID+1),31,1,-1,0,0,1,0,1
 					WRITE(101,'(7I5)')1,4,1,0,0,1,1
-					WRITE(101,'(4F8.4)')0.440,0.675,0.870,1.020
+					WRITE(101,'(4F8.4)')0.4406,0.6742,0.8702,1.0197
 					WRITE(101,'(4I4)')1,1,1,1
 					WRITE(101,'(4I4)')0,0,0,0
 					WRITE(101,'(4I4)')1,1,1,1
@@ -834,7 +842,7 @@ c					WRITE(101,'(2F6.3)')1.0,0.0
 						WRITE(101,'(4F10.6)')MODISWAVE(IW),
      &					(DAYBRDF(IW,K),K=1,3)
 					ENDDO
-
+C	WRITE(101,'(A30)')'18:08:2006,07:00:12,Almucantar,Mongu,152'
 					WRITE(101,'(A30)')
      1				CDATE(5:6)//':'//CDATE(3:4)//':20'//CDATE(1:2)//','
      2				//UTC(1:2)//':'//UTC(3:4)//':'//UTC(5:6)//',Almucantar,'//
@@ -1281,14 +1289,8 @@ C	are being held .xed. (For the latter, return zero covariances.)
       OPEN(UNIT=10,FILE=TRIM(FIPT)//'ceform_'//TRIM(STNS_ID)//'.par',
      1	STATUS='OLD')
       READ(10,*) HEADER
-c     che UTC 2013-6-11ccc
-C     加快速度所以不显示！
-C      write(*,*)HEADER
       READ(10,*) ALNGS,LATDEG,LONDEG,HGTASL
-c     CHE 测试UTC 2013-6-11
-C      write(*,*)LATDEG,LONDEG
       READ(10,*) NW9
-C      write(*,*)NW9
       READ(10,*) (WVL9(I),I=1,NW9) !wavelength (microns)
       READ(10,*) (IFLT9(I),I=1,NW9)!Filter number
       READ(10,*) (IWVL9(I),I=1,NW9)!Filter flags
@@ -1403,7 +1405,7 @@ C$ENDI
 				ENDIF
 			ENDIF
 		ENDDO
-		IF(HDIFMIN.LE.90) THEN !time difference between right and left scanning < 60s
+		IF(HDIFMIN.LE.120) THEN !time difference between right and left scanning < 60s
 			II=II+1
 			IXR(II)=I
 			IXL(II)=JMIN
@@ -1468,24 +1470,38 @@ C      ENDIF
       II=0
       DO 111 I=1,KNBR
 		READ(10,1010,END=1011) LINE
+		IF(LINE(21).EQ.'8') THEN
+		  READ(10,1010,END=1011) LINE
+		ENDIF
+cz		write(*,*)LINE
 		DO K=1,500
 	   	  IF(LINE(K).EQ.'/'.OR.LINE(K).EQ.':'.OR.LINE(K).EQ.',') THEN
 			LINE(K)=' '
+		  ENDIF
+		  IF(LINE(K).EQ.'O'.OR.LINE(K).EQ.'v'.OR.LINE(K).EQ.'e') THEN
+			LINE(K)='9'
+		  ENDIF
+		  IF(LINE(K).EQ.'r'.OR.LINE(K).EQ.'f'.OR.LINE(K).EQ.'l') THEN
+			LINE(K)='9'
+		  ENDIF
+		  IF(LINE(K).EQ.'o'.OR.LINE(K).EQ.'w') THEN
+			LINE(K)='9'
 		  ENDIF
 		  IF(LINE(K).EQ.'!')THEN
 			LINE(K)='9'
 		  ENDIF
 		ENDDO
 		IF(LINE(1).EQ.'D')GOTO 111
-		II=II+1
 	
+		II=II+1
+cz		write(*,*)LINE
 		READ(STRING,*) DDR(II),MMR(II),YYR(II),HR(II),MR(II),SR(II),
      1					NFILTROR(II),
      1	RVDIR(II),(RVAUR(J,II),J=1,5),(RVSKY(J,II),J=1,24),RTEMP(II) 
+cz	  WRITE(*,*) DDR(II),MMR(II),YYR(II),HR(II),MR(II),SR(II)
 !Direct irradiance, aureole radiance at 5 angles and sky radiance at 24 angels
-c     车慧正测试UTC 2013-6-11
-C		write(*,*)DDR(II),MMR(II),YYR(II)
 		IF(RVDIR(II).EQ.9999)RVDIR(II)=65529
+		IF(RVDIR(II).EQ.99999999)RVDIR(II)=65529
 		DO J=1,5
 			IF(RVAUR(J,II).EQ.9999)RVAUR(J,II)=65529
 		ENDDO
@@ -1497,17 +1513,20 @@ C		write(*,*)DDR(II),MMR(II),YYR(II)
  1010 FORMAT(500A1)
       
       NB=II
-
+cz	write(*,*) NB
 !	TO TRANSFORM UTC TO LTC IN ORDER TO GET REAL DAILY OBSERVATIONS
 	CALL UTC_LTC(HR,YYR,MMR,DDR,YYT,MMT,DDT,LONDEG)
+cz      WRITE(*,*)MMT,DDT,LONDEG	
 	NBR=0
 	NUM=0
 	DO I=1,KNBR
+
 		IF(YYT(I).EQ.2000+YY.AND.MMT(I).EQ.MM.AND.DDT(I).EQ.DD)THEN
 			NBR=NBR+1
 			NUM=NUM+1
 			IXR(NBR)=I
 		ENDIF
+
 	ENDDO	
 
 
@@ -1665,6 +1684,7 @@ c	right almucantar
 			IF(ICH.LT.NW9-1) THEN	!LESS ALMUCANTAR SCANNING
 				DO J=I-ICH,I
 					IFLG(J)=-1
+cz				IFLG(J)=1       !我的修改
 				ENDDO 
 			ENDIF
 			ICH=0
@@ -1712,6 +1732,7 @@ c	left almucantar
 			IF(ICH.LT.NW9-1) THEN	!LESS ALMUCANTAR SCANNING
 				DO J=I-ICH,I
 					IFLG(J)=-1
+cz				IFLG(J)=1       !我的修改
 				ENDDO 
 			ENDIF
 			ICH=0
@@ -1792,8 +1813,7 @@ c	left almucantar
      1	                 RVAUR,RVSKY,LVAUR,LVSKY,ACAL,SCAL,ALMA,ALMB)
 
 	PARAMETER(KNBR=1000,KNW=10)
-C     左右对称度，设置阈值，original 原来(SIMCRIT=15.)，Now: 现在更加严格控制为(SIMCRIT=10.) CHE HUIZHENG 2013-6-13
-      PARAMETER(SIMCRIT=10.)
+      PARAMETER(SIMCRIT=15.)
       INTEGER RVAUR(5,KNBR),RVSKY(24,KNBR)
 	INTEGER LVAUR(5,KNBR),LVSKY(24,KNBR)
       DOUBLE PRECISION ALMA(29,KNBR),ALMB(29,KNBR)
@@ -1815,8 +1835,6 @@ C     左右对称度，设置阈值，original 原来(SIMCRIT=15.)，Now: 现在更加严格控制为(
       DO I=1,NBR
 		DO K=1,29
 			IFLAG(K,I)=1
-CC    tEST
-CC	write(*,*)IFLAG(K,I),'k=',k,'i=',i
 		ENDDO
       ENDDO
 
@@ -1923,11 +1941,8 @@ c     Checking for the degree 6 match aur/sky
 			WRITE(*,*) 'Warning!: Aur & Sky do not match (>1%):',MATCH
 		ENDIF
       ENDDO
-!-------------------------------------------------------------------------
-!     The following parts should be corrected by VICTOR!!!!!!! Maybe also other related parts?? 
-!-------------------------------------------------------------------------
+
 !     Simmetry filter over radiance in the almucantar (Holben, 1998)
-!-------------------------------------------------------------------------
       DO I=1,NBR
 		RMSD(I)=0.
       ENDDO
@@ -1940,7 +1955,6 @@ c     Checking for the degree 6 match aur/sky
 				RMSDI=ABS(ALMA(J,I)-ALMB(J,I))/XMED
 				IF(RMSDI.GT.SIMCRIT/100.) THEN
 					IFLAG(J,I)=0
-	
 				ELSE 
 					SAVG=SAVG+XMED
 					RMSDI=RMSDI**2.
