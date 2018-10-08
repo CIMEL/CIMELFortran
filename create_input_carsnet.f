@@ -282,7 +282,7 @@ C	STOP
 c	to read modis brdf parameter
 	OPEN(125,
      &FILE=TRIM(FBRDF)//'MCD43C3_'//TRIM(STNS_FN)//
-     &'_'//TRIM(STNS_ID)//'_WSA.BRDF'
+     &'_'//TRIM(STNS_ID)//'.BRDF'
      &	,STATUS='OLD')
 CZ	 write(*,*)FILE
 	NUMBRDF=0
