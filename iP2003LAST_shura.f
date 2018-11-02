@@ -295,6 +295,7 @@ C****************************************************
 		IF(IPRI2.EQ.1)  WRITE(*,*) (RMIN(ISD),RMAX(ISD),ISD=1,NSD)     
      &	,'(RMIN(ISD),RMAX(ISD),IS(ISD),ISD=1,NSD)'
 		DO ISD=1,NSD
+CZ			WRITE(*,*) RMAX(ISD), RMIN(ISD) !CZJ
 			IF(IBIN.EQ.1) 
      &			AD=(RMAX(ISD)-RMIN(ISD))/(NBIN(ISD)-1)
 			IF(IBIN.EQ.-1) 
@@ -511,22 +512,26 @@ C*** Asigning non-equal binning for smoothmness:
 			XX(I,J)=0.
 		ENDDO
       ENDDO
-
+CZ	WRITE(*,*) NLYR
       DO IL=1,NLYR
 		DO ISD=1,NSD
 			DO I=1,NBIN(ISD)
+cz				WRITE(*,*) RADIUS(ISD,I)
 				IF(IBIN.EQ.1) XX(ISDLOC(IL,ISD),I)=RADIUS(ISD,I)
 				IF(IBIN.EQ.-1) XX(ISDLOC(IL,ISD),I)=LOG(RADIUS(ISD,I))
 			ENDDO
 			DO IW=1,NW
+cz				WRITE(*,*) WAVE(IW)
 				XX(IREFLOC(IL,ISD,1),IW)=LOG(WAVE(IW))
 				XX(IREFLOC(IL,ISD,2),IW)=LOG(WAVE(IW))
+CZ				WRITE(*,*) XX(IREFLOC(IL,ISD,2),IW)
 			ENDDO
 		ENDDO
       ENDDO
-
+	
       DO IB=1,NBRDF
 		DO IW=1,NW
+cz			WRITE(*,*) WAVE(IW)
 			XX(IBRDFLOC(IB),IW)=LOG(WAVE(IW))
 		ENDDO
       ENDDO
@@ -535,6 +540,7 @@ C*** Asigning non-equal binning for smoothmness:
 		XX(IBRDF1LOC(1),IBB)=IBB+1.
       ENDDO
 C*******************************CORECTION*FOR*SHAPE***************
+CZ	WRITE(*,*) NSHAPE
       DO IBB=1,NSHAPE
 		XX(ISHAPELOC(1),IBB)=IBB+1.
       ENDDO
@@ -618,7 +624,7 @@ C***  SMOOTHNESS Constraints   ****
      &		IO(IREFLOC(IL,I,2)),GSM(IREFLOC(IL,I,2)),I=1,NSD)'
 		ENDDO
       ENDIF
-      
+            
 	IF(IT.EQ.0) THEN
 		DO IL=1,NLYR
 			READ (981,*) (IO(ISDLOC(IL,I)),GSM(ISDLOC(IL,I)),I=1,NSD)
@@ -671,6 +677,7 @@ C***             for I-th parameter dependence
 C****************************************************
       READ (981,*) EPSP,EPST,EPSQ,DL,AREF,EPSD
       IF(IPRI2.EQ.1)  WRITE(*,*) EPSP,EPST,EPSQ,DL,' EPSP,EPST,EPSQ,DL'
+CZ	WRITE(*,*) EPSP,EPST,EPSQ,DL,' EPSP,EPST,EPSQ,DL'
 C*****************************************************
 C***  EPSP - for stoping p - iterations
 C***  EPST - for stoping iterations in CHANGE
@@ -683,11 +690,15 @@ C*****************************************************
       READ (981,104) CH1
       IF(IPRI2.EQ.1) WRITE(*,*) 'before READING F(*)'
       READ (981,*) (F(J),J=1,KM)
+CZ	WRITE(*,*) F(115)
       IF(IPRI2.EQ.1) WRITE(*,*) 'AFTER READING F(*)'
       IF(IPRI2.EQ.1)  WRITE(*,*) F(KM), 'F(KM)'
 C*** Transforming to log ***
       IF(KL.EQ.1) THEN
+cz		WRITE(*,*) KM
 		DO J=1,KM
+cz			WRITE(*,*) F(J)
+			IF(F(J).LT.1.0E-30) F(J)=1.0E-30
 			F(J)=LOG(F(J))
 		ENDDO
       ENDIF
@@ -722,6 +733,7 @@ C***  BRDF:
 C***     - first wavelength
 C***    *** LOOP by NW   ****
 C*** Assuming initial SD by log-norm functions
+CZ	WRITE(*,*) ISZ
       IF(ISZ.EQ.1) OPEN (1012, FILE="SDguess.dat")
 CD      IK=0
 CD?      IIK=0
@@ -809,8 +821,10 @@ C*************************CORRECTION*FOR*SHAPE********************
       ENDIF 
 C******************************************************************    
 C*** Transforming to log ***
+CZ	WRITE(*,*) KL
       IF(KL.EQ.1) THEN
 		DO I=1,KN
+CZ			WRITE(*,*) AP(I)
 			AP(I)=LOG(AP(I))
 			IF(AP0(I).GT.0.) AP0(I)=LOG(AP0(I))
 		ENDDO
@@ -878,6 +892,7 @@ cs      write(6,*)'IN'
 			CALL RDMG(RDM0,IK(I),EMG,SGMS(I),RDM)
 			DO J=1,KM
 				DO K=1,IK(I)
+cz					WRITE(*,*) J, KNOISE(I,K)
 					IF(J.EQ.KNOISE(I,K)) THEN 
 						IF(INN(I).EQ.0) THEN
 C*** Relative errors: ****
@@ -1018,6 +1033,7 @@ C*******************************************************************************
 C	WRITE(*,*)'NDP=',NDP !CXXA
       AP(KN)=EXP(AP(KN))
       AP(KN)=AP(KN)/100
+CZ	WRITE(*,*) AP(KN)
       AP(KN)=LOG(AP(KN))
       xinti=AP(KN)
 	APIN=0.   !CXXA
@@ -1052,7 +1068,13 @@ C*******************************************************************************
 		do i1=1,NW
 			tf=(TAUR(i1,NLYRS+1))
 cs       write(6,*)'TAUR',tf
-			TAUA(i1)=ALOG(EXP(F(KNOISE(2,i1)))-tf)
+cz			WRITE(*,*) EXP(F(KNOISE(2,i1)))-tf
+			IF(EXP(F(KNOISE(2,i1)))-tf.LT.1.0E-30) THEN    !Jun Zhu
+					TAUA(i1)=ALOG(1.0E-30)
+			   ELSE         
+					TAUA(i1)=ALOG(EXP(F(KNOISE(2,i1)))-tf)
+			ENDIF
+CZ			WRITE(*,*)TAUA(i1)
 			WAVEL(i1)=ALOG(WAVE(i1))
 			sum1=sum1+WAVEL(i1)
 			sum2=sum2+TAUA(i1)
@@ -1369,21 +1391,29 @@ cs      write(6,*)'after Res4'
 cs      write(6,*)'after VEC_MATR1'
 CD******* END of A PRIORI TERM  *******************************
 C	WRITE(*,*)'AL=',AL,KM,KN
-      ALCH=SQRT(AL/(KM-KN))
-      IF(KM.LE.KN)ALCH=SQRT(AL/(KM-KN+IKS+IKS1))
+CZ	WRITE(*,*) AL/(KM-KN)
+CZ	WRITE(*,*) AL/(KM-KN+IKS+IKS1)
+      IF(KM.LE.KN) THEN    ! JUN ZHU
+	ALCH=SQRT(AL/(KM-KN+IKS+IKS1))
+	ELSE
+	ALCH=SQRT(AL/(KM-KN))
+	ENDIF
       IF(IPRI2.EQ.1) WRITE(*,*) KM,KN,' KM,KN'
       AACOR=1.
       IF(ALCH.GT.0.01) AACOR=(ALCH/0.01)*(ALCH/0.01)
 cs      IF(ALCH.GT.0.05) AACOR=(ALCH/0.05)*(ALCH/0.05)
       IF(IPRI2.EQ.1) WRITE(*,*) AAA,AACOR,' AAA,AACOR'
       IF(IPRI2.EQ.1) WRITE(*,*) AACOR*AAA, 'AAA, AFTER SECOND RES'
+CZ	WRITE(*,*)AL1/KM
       IF(ISTOP.EQ.1) WRITE(*,*) SQRT(AL1/KM),'OPTICAL RESIDUAL'
 cs      write(6,*)'KM,KN,IKS,IKS1',KM,KN,IKS,IKS1,KM-KN+IKS+IKS1
 cs      write(6,*)'AL,AACOR,AAA,AAAA',AL,AACOR,AAA,AAAA
-c	WRITE(*,*)'AACOR=',AACOR,KM,KN,IKS,IKS1 !CXXA
+C	WRITE(*,*)'AACOR=',AACOR,KM,KN,IKS,IKS1 !CXXA
+CZ	WRITE(*,*)'AL,AACOR,AAA,AAAA',AL,AACOR,AAA,AAAA
       AL=(AL+AACOR*(AAA)+AAAA)/(KM-KN+IKS+IKS1)
+CZ	WRITE(*,*)AL
       WRITE(1011,*) SQRT(AL)*100.,'% - RESIDUAL using INITIAL GUESS'
-      
+CZ      WRITE(*,*)ISTOP
 	IF(ISTOP.EQ.1) THEN
 	    KL=1
 		GO TO 21
@@ -1413,7 +1443,8 @@ cs      write(6,*)'AFTER FORWADR1'
 			FP1(J)=FP(J)
 		ENDDO
       ENDIF
-c	WRITE(250,*)'THE third LOOP',AP(1),AP(KN) !cxxa
+C	WRITE(250,*)'THE third LOOP',AP(1),AP(KN) !cxxa
+CZ	WRITE(*,*) AL
       ALPT=SQRT(AL)
       IF(ALPT.LE.EPSD) IMSC1=IMSC
 cs      write(6,*)'BRDF1MAX before FMAT',BRDF1MAX
@@ -3991,6 +4022,7 @@ cs******************************************************************************
 		if(L.eq.1.or.L.eq.10)then
 			WRITE(1011,994)ALTIT(L),FLXINTA(L,1),FLXINTA(L,2),
      &                       FLXINTA(L,3),FLXINTA(L,4)
+		
 		endif
         ENDDO
 c       WRITE(*,*)
@@ -4328,6 +4360,7 @@ C***** KN<0 logarithmic intervals *******
       DO 1 II=1,NSD
 		IF(KN(II).LT.0) THEN
 			IF(RMIN(II).LT.1.0E-30)RMIN(II)=1.0E-30
+			IF(RMAX(II).LT.1.0E-30)RMAX(II)=1.0E-30 !CZJ
 			RH=(LOG(RMAX(II))-LOG(RMIN(II)))/(KNN(II)-1)
 		ENDIF
 		IF(KN(II).GT.0) RH=((RMAX(II))-(RMIN(II)))/(KNN(II)-1)
@@ -4370,6 +4403,7 @@ C      WRITE(*,*) C,S,RM,RMIN,RMAX
       KNSIM=301
       PI    = ACOS( -1.0 )
 	IF(RMIN.LT.1.0E-30)RMIN=1.0E-30 !CXXA
+	IF(RMAX.LT.1.0E-30)RMAX=1.0E-30 !CZJ
       AHR=(LOG(RMAX)-LOG(RMIN))/(KNSIM-1)
 c      AH=1./(KNSIM-1)
       AA=0.

@@ -224,7 +224,7 @@ cs       WRITE(*,*) IW, SHAPE(IBB),' IW, SHAPE'
 					ENDDO
 					SHAPE(NSHAPE+1)=APIN
 cs        SHAPE(NSHAPE+1)=1.-SHAPE(NSHAPE)
-				ENDIF
+                  ENDIF
 cs       write(6,*)'SHAPE',SHAPE
 cs        IF(IMSC.EQ.0)THEN
 cs        WRITE(*,*)'WAVE(IW)',WAVE(IW)
@@ -515,7 +515,7 @@ C FS_BOT,FS_TOA: SPECTRAL RADIATIVE FORCING (WM-2) AT SURFACE AND TOA
 C ES_BOT,ES_TOA: SPECTRAL RADIATIVE FORCING EFFICIENCY (WM-2/AOD(0.55 um)) AT SURFACE AND TOA
 C~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	IF (COND.EQ.0) THEN
-		OPEN(800, FILE='INPUT_BB')
+		OPEN(800, FILE='PARM\INPUT_BB')
 		READ(800,*)BROAD,FORC,SPEC
 		READ(800,*)W1,W2
 		READ(800,*)SCL1,NSTR1,NSTR2,NMOM,NSSA
@@ -591,12 +591,14 @@ c~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 							WRITE(902,*)
      1						'WL(um) SSA AOD ASYM FACTOR SURF_ALB RREAL RIMAG'  
 							NOAERO=0 !WITH AEROSOLS
+ 						
 							CALL RADTRS(NMOM,NSTR1,NSTR2,PP,ANG,IANGL
      &						,RADIUS2,SD2,SHAPE, NSHAPE,NSD,NBIN,
      $						NW,WAVE,LAMB1,LAMB2,UMU1,DSOL,SSA,NSSA, CSOL,UH2O,            
      $						UO3CM,UCO2,ZSUR,NLAY,NLEVEL,RREAL1,RIMAG1,
      $						NOAERO,SCL1,ALTIT,FLXINTA,TOTAER0,FLXNU0,CORSOL)
-
+CZ      WRITE(*,*)ALTIT(1),FLXINTA(1,1),FLXINTA(1,2)
+CZ      WRITE(*,*)ALTIT(NLEVEL),FLXINTA(NLEVEL,1),FLXINTA(NLEVEL,2)	
 
  							WRITE(901,*)'ALTIT  FLXDWN   FLXUP'
  							WRITE(901,*)' (km)  (W/m2)   (W/m2)'
@@ -605,8 +607,8 @@ c~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 								WRITE(901,999)
      1								ALTIT(L),FLXINTA(L,1),FLXINTA(L,2)
 							ENDDO
-
-							FLUX_UP_TOA_AERO=FLXINTA(NLEVEL,2)
+     					
+						FLUX_UP_TOA_AERO=FLXINTA(NLEVEL,2)
 							FLUX_UP_BOT_AERO=FLXINTA(1,2)
 							FLUX_DOWN_TOA_AERO=FLXINTA(NLEVEL,1)
 							FLUX_DOWN_BOT_AERO=FLXINTA(1,1)
@@ -631,6 +633,7 @@ c~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    						WRITE(901,999)ALTIT(L),FLXINT(L,1),FLXINT(L,2)
 								ENDDO
 
+	
 								FLUX_UP_TOA=FLXINT(NLEVEL,2)
 								FLUX_UP_BOT=FLXINT(1,2)
 								FLUX_DOWN_TOA=FLXINT(NLEVEL,1)
@@ -641,16 +644,18 @@ c~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 C----------------RADIATIVE FORCING----------------------
 
-cs	FORC_BOT=((FLUX_DOWN_BOT-FLUX_UP_BOT)-
-cs     &(FLUX_DOWN_BOT_AERO-FLUX_UP_BOT_AERO))
-cs	FORC_TOA=((FLUX_DOWN_TOA-FLUX_UP_TOA)-
-cs     &(FLUX_DOWN_TOA_AERO-FLUX_UP_TOA_AERO))
-								FORC_BOT=(FLUX_DOWN_BOT-FLUX_DOWN_BOT_AERO)
-								FORC_TOA=(FLUX_UP_TOA-FLUX_UP_TOA_AERO)
+	FORC_BOT=((FLUX_DOWN_BOT_AERO-FLUX_UP_BOT_AERO)-
+     &(FLUX_DOWN_BOT-FLUX_UP_BOT))
+	FORC_TOA=((FLUX_DOWN_TOA_AERO-FLUX_UP_TOA_AERO)-
+     &(FLUX_DOWN_TOA-FLUX_UP_TOA))
+CZ								FORC_BOT=(FLUX_DOWN_BOT-FLUX_DOWN_BOT_AERO)
+CZ								FORC_TOA=(FLUX_UP_TOA-FLUX_UP_TOA_AERO)
 C-------------RADIATIVE FORCING EFFCIENCY ----------------
 
 								EF_BOT=FORC_BOT/TOTAER0  	
 								EF_TOA=FORC_TOA/TOTAER0
+cz      WRITE(*,*) ALTIT(1), FORC_BOT,EF_BOT
+cz      WRITE(*,*)ALTIT(NLEVEL), FORC_TOA, EF_TOA
 c--------------------------------------------------------
 								WRITE(901,*)
 				WRITE(901,*)'ALTIT RADIAT FORCING FORCING EFFICIENCY'
@@ -811,13 +816,13 @@ c **   ANGLE(KM) - scattering angles                            ** c
 c **************************************************************** c
 
 !      include 'optchar.par'
-      integer KN, KM, KR,NDP 
-	integer key, key_RD, keyEL, keySUB, keyLS, key_org,key_fx,
+      integer,SAVE :: KN, KM, KR,NDP 
+	integer,SAVE :: key, key_RD, keyEL, keySUB, keyLS, key_org,key_fx,
      &       key_grid1,key_RD1
 
       real WL, RN, RK
 
-      dimension grid(KNpar), SD(KNpar),RD1(KSHAPE)
+      dimension :: grid(KNpar), SD(KNpar),RD1(KSHAPE)
      &            ,R(KRpar), RD(KRpar), ANGLE(KMpar)
       dimension f11(KMpar) 
      &         ,f12(KMpar)
@@ -834,6 +839,7 @@ c **************************************************************** c
       REAL AC(2)
 !==================END BY DUAN ============================
 
+      
       KN=NBIN
       DO I=1,KN
 		grid(I)=RADIUS(I)
@@ -876,9 +882,10 @@ C	WRITE(*,*)'II=',II
 c
 c ** READ INPUT
 c       
-	    open(10,file='input.dat',status='old')
+	    open(10,file='PARM\input.dat',status='old')
 		read(10,*) key,keyEL,keySUB,keyLS,
      &           key_org,key_fx,key_RD1
+!CZJ          write(*,*)key,keyEL,keySUB,keyLS
 		if(keySUB.eq.0)  
      &	write(*,*) key,keyEL,keySUB,keyLS,
      &                    key_org,key_fx,key_RD1
@@ -922,6 +929,7 @@ CD???      read(10,*)
 			read(10,*) R(i)
 		enddo ! i
 		read(10,*) KM
+!CZJ          WRITE(*,*)KM
 		if(KM.gt.KMpar) then
 			write(*,*) 'in input.dat KM=',KM,' .gt. ',
      &		'Kmpar=',KMpar,' in mo_par_DLS.f90'
@@ -999,12 +1007,14 @@ c
 !      write(*,*) 'R=',R
 c	write(250,*)'xxa,key',key,key_RD,keySUB,key_grid1
 c	write(250,*)'xxa,distname_O',distname_O
+
       CALL OPTCHAR(key,key_RD,keyEL,keySUB,keyLS
      &            ,key_org,key_fx,key_grid1
      &            ,WL,RN,RK,KN,grid,SD
      &            ,KR,R,RD,KM,ANGLE,ext,albedo
      &            ,f11,f12,f22,f33,f34,f44,pomin,pomax
      &            ,distname_O,distname_F,distname_N,NDP,key_RD1)
+      
 c	  write(250,'(22e15.5)')sd
 c	  write(250,*)'rn,rk',rn,rk
 c	  write(250,*)'xxa,ext,albedo',ext,albedo
@@ -1102,7 +1112,7 @@ c**********
 **********
       LOGICAL RAYLI,lamber,ALM
       CHARACTER fbetal*16
-      INTEGER NLYR,NSTR
+      INTEGER, SAVE :: NLYR,NSTR
       INTEGER jday,month,jyear,nn
       INTEGER N0,ISAUT
       REAL ALBEDO,FBEAM,angle
@@ -1135,6 +1145,9 @@ C*****FOR CAPONY BRDF******************************************
       real R0BW,KBW,THBW
       DIMENSION R0BW(KW),KBW(KW),THBW(KW)
       integer ICANO
+      INTEGER, SAVE :: NLYRS,NW,IGEOM,IDF,IDN
+      REAL, SAVE :: DPF
+      INTEGER, SAVE :: NS !Add by ZHUjun 2018/10/15
 C*****FOR CAPONY BRDF******************************************  
 C**********
       INTEGER NTAU(KW),NSZA(KW,MAXCLY),NZSZA0(KW),FTAU(KW)
@@ -1180,7 +1193,7 @@ C******************
      &          ,llyr(MAXCLY),albedoa(KW),AM1UB(KNA1U),
      &          hft(MAXCLY),ind2(MAXCLY+1),indl(MAXCLY+1),
      &          AM1US(KNA1U),AIP(KNA1U,KNA0,KNFI,KNTAU)
-     &          ,ALBMODIS_1(NWM),WAVEMOD(NWM)
+     &          ,ALBMODIS_1(NWM),WAVEMOD(NWM),DDLW(KNA0)!DDLW is added by JunZhu
 CS****************************Radforce correction********************************
        DIMENSION F1(KW),F2(KW),F3(KW)
 CS**********************************************************************************
@@ -1350,7 +1363,7 @@ cs       write(6,*)'BRDF'
 cs       write(6,*)R0BW(IW1),KBW(IW1),THBW(IW1)
 			ENDIF
 C*************************************************************************
-			READ(981,*) UO3(IW1), O3T(IW1),H2OT(IW1)
+			READ(981,*) UO3(IW1),O3T(IW1),H2OT(IW1)
 			IF(IPRI2.EQ.1) write(6,*) UO3(IW1), 'UO3(IW1)'
 			READ(981,*) NTAU(IW1)
 			FTAU(IW1)=NTAU(IW1)
@@ -1433,7 +1446,9 @@ CS*******************************************************************
       INDG=INDG1
 cs       write(6,*)'WAV',WAV(IW)
 cs       write(6,*)'lvect,',lvect
-C	WRITE(*,*)'III=',III
+c	WRITE(*,*)'III=',III
+
+      
 	IF(III.LT.NW) THEN
 C**************************************************
 c***   for multipl scattering                   ***
@@ -1608,10 +1623,10 @@ C***     OBSERVATION azimuth angles             ***
 			DO ISZA1=1,NSZA(IW,ITAU1)
 				DO IOZA1=1,NUMUY(IW,ITAU1,ISZA1)
 					DO IPHI1=1,NPHI(IW,ITAU1,ISZA1,IOZA1)
-						DO IPHI=1,NPHIY0(IW)
+						DO IPHI=1,NPHIY0(IW)      
       IF(PHI0(IW,IPHI).EQ.PHI(IW,ITAU1,ISZA1,IOZA1,IPHI1))
      &LPHI(IW,ITAU1,ISZA1,IOZA1,IPHI1)=IPHI
-						ENDDO
+                          ENDDO
 					ENDDO
 				ENDDO
 			ENDDO
@@ -2965,7 +2980,7 @@ C~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 C~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
       SOMFSOL=0.
       FSOL=0
-      OPEN(990,FILE='SUN100')
+      OPEN(990,FILE='PARM\SUN100')
       DO I=1,NBNU
          READ(990,*)II,FSOL(I)
       ENDDO
@@ -2995,7 +3010,7 @@ C********JDAY,MONTH,ZSURF,OZONE,H2O FROM INVERSION INPUT FILE**********
 	  UH=UH2O
 	ENDIF
 	IF (UO3CM.EQ.-1) THEN ! OZONE CONTENT  (atm cm)
-	   UO3=O3T(1)/1000 
+	   UO3=O3T(1)/1000. 
 	ELSE
 	   UO3=UO3CM
 	ENDIF
@@ -3037,7 +3052,7 @@ cs	CLOSE(990)
 
 C~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 C
-      OPEN(990,FILE='SPECTREH2O')
+      OPEN(990,FILE='PARM\SPECTREH2O')
       DO I=1,138
          READ(990,*)II
          READ(990,*)(SOI(IT,I,1),IT=1,NBTEMP)
@@ -3045,7 +3060,7 @@ C
          READ(990,*)
       ENDDO
       CLOSE(990)
-      OPEN(990,FILE='SPECTRECO2')
+      OPEN(990,FILE='PARM\SPECTRECO2')
       DO I=1,138
          READ(990,*)II
          READ(990,*)(SOI(IT,I,2),IT=1,NBTEMP)
@@ -3116,11 +3131,10 @@ C
 C----------------------------------------------------------
       CALL ZEROIT (FLXNU,MAXULV*NBNU*4)
       CALL ZEROIT (FLXINT,4*MAXULV)
-
 C----------------------------------------------------------
    
  63   FORMAT('Total Pre-bucle lambda ...... ',f8.4,' min.')
-
+CZ      write(*,*) IV
       NDP=IV
       IV=1
 C**********************************************************
@@ -3460,7 +3474,8 @@ cs      DSUN=1.0
       SOMFSOL=SOMFSOL+FILT
 cs      WRITE(*,*)'FSOL(LAMB),DSUN,FILT',FSOL(LAMB),DSUN,FILT
 cs      WRITE(*,*)'SOMFSOL',SOMFSOL
-
+CZ      WRITE(*,*)ALTIT(1),FLXINT(1,1),FLXINT(1,2)
+ 
       DO L=1 , NLEVEL
          FLXNU(L,IW,1)=FLXNU(L,IW,1)*FILT
          FLXNU(L,IW,2)=FLXNU(L,IW,2)*FILT
@@ -3472,10 +3487,10 @@ cs      WRITE(*,*)'SOMFSOL',SOMFSOL
          FLXINT(L,3)=FLXINT(L,3)+FLXNU(L,IW,3)
          FLXINT(L,4)=FLXINT(L,4)+FLXNU(L,IW,4)
        ENDDO
-cs      WRITE(*,*)'LAMB,NLEVEL',LAMB,NLEVEL
-cs      DO L=1 , NLEVEL
-cs      IF(L.EQ.NLEVEL)WRITE(*,*)FLXINT(L,1),FLXINT(L,2)
-cs      ENDDO
+cz      WRITE(*,*)'LAMB,NLEVEL',LAMB,NLEVEL
+cz      DO L=1 , NLEVEL
+cz      IF(L.EQ.NLEVEL)WRITE(*,*)FLXINT(L,1),FLXINT(L,2)
+cz      ENDDO
 C
 C  ======================================================
 C
@@ -3524,6 +3539,7 @@ C
          FLXINT(L,3)=FLXINT(L,3)/SOMFSOL*CONSTSOL
          FLXINT(L,4)=FLXINT(L,4)/SOMFSOL*CONSTSOL
       ENDDO
+ 	
       RETURN
       END
 
@@ -4800,6 +4816,7 @@ C*****************************************************************************
      *,P1(0:IME),P2(0:IME),P3(0:IME),P4(0:IME)
        REAL*4 pppp1,pppp2,pppp3,pppp4,pppp5
 *------------------------------------------------------------------------------*
+      REAL SLOG,CM1,SM,RMM
       DIMENSION CM1(KMD,KSD),SM(KMD,KSD),RMM(KMD,KSD)
       REAL PTP11(KMES),PTP12(KMES),PTP22(KMES),PTP33(KMES)
      &            ,PTP34(KMES),PTP44(KMES),
@@ -4929,7 +4946,7 @@ CD      WRITE(*,*) 'BEFORE SLOG'
       DO IM=1,NMD
 CD         WRITE(*,*) IM,NMD,'IM,NMD'
 CD         WRITE(*,*) CM1(IM,ISD),SM(IM,ISD),RMM(IM,ISD),' CM,SM,RMM'
-         ASZD1=SLOG(CM1(IM,ISD),EXP(SM(IM,ISD)),RMM(IM,ISD),R)
+          ASZD1=REAL(SLOG(CM1(IM,ISD),EXP(SM(IM,ISD)),RMM(IM,ISD),R),8)
          ASZD=ASZD+ASZD1
       ENDDO
       ENDIF
@@ -5365,7 +5382,7 @@ c     gases1(2,j) = 3.50e+02
 c
 c..atmospheric gases (28): h2o,co2,o3,n2o,co,ch4,o2,.. [ppmv] 
 cs      open (10,file='/home/ilya/CODEILYA_FINAL3/modata.d',status='old')
-      open (10,file='modata.d',status='old')
+      open (10,file='PARM\modata.d',status='old')
       do 150 m=1,4
       jstart = 7*(m-1) +1
       jend   = 7*m
@@ -5394,7 +5411,7 @@ c
 c
 c..atmospheric data: z[km],p[mb],t[k],ro[#/cm3] and h2o,o3,n2o,co,ch4
 cs      open (10,file='/home/ilya/CODEILYA_FINAL3/sadata.d',status='old')
-      open (10,file='sadata.d',status='old')
+      open (10,file='PARM\sadata.d',status='old')
       do 260 m=1,8
       read (10,180) imodel,sun,slt
   180 format (/,9x,i4,39x,f5.1,18x,f5.1)
@@ -5423,7 +5440,7 @@ c
 c
 c..non-standard atmospheric data [profil.d]
 cs      open (10,file='/home/ilya/CODEILYA_FINAL3/profil.d',status='old')
-      open (10,file='profil.d',status='old')
+      open (10,file='PARM\profil.d',status='old')
       read (10,*) nrow,ncol,sun,slt
       if(nrow.gt.0) goto 280
       close (10)
@@ -5535,7 +5552,7 @@ c
 c
 c..override new atmospheric data 
 cs      open (10,file='/home/ilya/CODEILYA_FINAL3/profil.d',status='old')
-      open (10,file='profil.d',status='old')
+      open (10,file='PARM\profil.d',status='old')
       read (10,*) nrow,ncol,sun,slt
       read (10,*) (ntype(j),j=1,ncol)
       ja     = 0

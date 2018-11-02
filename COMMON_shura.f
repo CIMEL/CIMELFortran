@@ -1118,10 +1118,10 @@ C BRF  R(N)          BRF determined by THI,THE,FI1(N)
 C--
       PARAMETER(PI=3.1415926535897932385)
 C--AREA
-      DIMENSION SBRF(20,20,40),SZA(40),EZA(40),AA(40)
+      DIMENSION SBRF(20,20,40),SZA(20),EZA(20),AA(40)
 !===================== BY DUAN ==================================
-      DIMENSION FI1(40),BRF1(40)
-C      DIMENSION FI1(30),BRF1(30)
+C      DIMENSION FI1(40),BRF1(40)
+      DIMENSION FI1(30),BRF1(30)
 !===================== BY DUAN ==================================
       DIMENSION TSZA(3),TEZA(3),TAA(3),TAA2(3)
 C
@@ -4789,8 +4789,8 @@ C LOCAL
 C     JU,JM,JL I
 C PARAMETER
 !===================== BY DUAN ==================================
-      PARAMETER (KXX = 40 )
-!      PARAMETER (KXX = 20 )
+!      PARAMETER (KXX = 40 )
+      PARAMETER (KXX = 20 )
 !===================== BY DUAN ==================================
 C AREA
       DIMENSION  XX(KXX)
@@ -4841,8 +4841,8 @@ C LOCAL
 C     JU,JM,JL I
 C PARAMETER
 !===================== BY DUAN ==================================
-      PARAMETER (KXX = 40 )
-!      PARAMETER (KXX = 20 )
+!      PARAMETER (KXX = 40 )
+      PARAMETER (KXX = 20 )
 !===================== BY DUAN ==================================
 
 C AREA
@@ -14745,8 +14745,8 @@ C                           TAKING PORALITY INTO ACCOUNT .GE. KNSB.
 C--- AREAS FOR THIS ROUTINE
       PARAMETER (KNA0  =2)
       PARAMETER (KNDM  =16)
-      PARAMETER (KNSB  =50)
-      PARAMETER (KNLT  =50)
+      PARAMETER (KNSB  =35)
+      PARAMETER (KNLT  =36)
       PARAMETER (PI=3.141592653)
       PARAMETER (KNSB1=KNSB+1)
 C--- AREAS FOR THE ROUTINE

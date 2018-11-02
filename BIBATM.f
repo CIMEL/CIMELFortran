@@ -22,7 +22,7 @@
   170 CONTINUE
 
 !C ..atmospheric data: z[km],p[mb],t[k],ro[#/cm3] and h2o
-      OPEN (10,FILE='sadata.d',STATUS='old')
+      OPEN (10,FILE='PARM\sadata.d',STATUS='old')
       DO 260 m=1,8
       READ (10,180) IMODEL,SUN,SLT
   180 FORMAT (/,9x,i4,39x,f5.1,18x,f5.1)

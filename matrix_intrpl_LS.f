@@ -119,7 +119,7 @@
 		
       PI=ACOS(-1.)
       PI2=2.*PI
-
+!czj      write(*,*)key,keyLS,key_RD1
       IF(NDP.EQ.0) THEN 
 		T_INT=0.
 		T_CPU=0.
@@ -140,6 +140,7 @@
 !       write(*,*) 'after MATRIX_FIX:'
 !       write(*,*) 'R    =',R,' KR   =',KR
 !       write(*,*) 'RATIO=',RATIO,' NRATN=',NRATN
+
 								if(keySUB.eq.0) then				                       
 								  T_INT01=dtime(tarray)
 								  T_INT1=T_INT1+T_INT01   !+++ 
@@ -191,7 +192,7 @@
       WRITE(*,*) 'POS=',POS,' PO1F=',PO1F,' POF=',POF
       STOP
       ENDIF
-
+!czj      write(*,*)key,keyLS,key_RD1
       if(key.eq.4) then
        if(key_RD1.eq.1) then
 	   call USU_LS(key_RD,keyEL,keySUB,keyLS,KR,R,RD
@@ -767,7 +768,7 @@
 
       X(1)=ARE(I0)
       X(2)=ARE(I1)
-
+!czj      write(*,*)keyLS
       IF(keyLS.EQ.1) THEN
         YPO(1)=UFEA(J,IP0,K0,I0)
         YPO(2)=UFEA(J,IP1,K0,I0)
@@ -775,7 +776,8 @@
         YPO(1)=UFEA(J,IP0,K0,I1)
         YPO(2)=UFEA(J,IP1,K0,I1)
         Y(2)=LINEAR( XPO, YPO, 2, PO )
-	  ELSE
+      ELSE
+!czj         write(*,*) UFEA(J,1:KN1,K0,I0) 
 	    YYS1(1:KN1)=UFEA(J,1:KN1,K0,I0) 
 	    key_spln=0
         CALL intrpl_spline(KN1,XXS1(1:KN1),YYS1(1:KN1)

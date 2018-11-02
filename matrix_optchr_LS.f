@@ -115,6 +115,7 @@
 !c      do itest=1,2  ! delete after test
 cxxa
 C	WRITE(250,*)'CXXA,NDP',NDP
+!CZJ      write(*,*)key,key_RD,keyEL,keySUB,keyLS
       CALL USMATRIX(key,key_RD,keyEL,keySUB,keyLS
      &             ,key_org,key_fx,key_grid1
      &             ,WL,RN,RK,KN,grid

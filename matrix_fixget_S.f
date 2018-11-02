@@ -136,6 +136,7 @@ c	WRITE(250,*)'CXXA,NDP',NDP
         T_RFM=0.
         T_CFM=0.
 
+
       if(key_grid1.eq.0) then
        full_name=TRIM(dir_name_O)//'grid1.dat'
 	else
@@ -168,7 +169,7 @@ c	WRITE(250,*)'CXXA,NDP',NDP
 		READ (10,*) ANGLE1(J)
       ENDDO ! J
       CLOSE(10)
-
+!cz      write(*,*)key,KM,KM1
       if(key.eq.4.and.(KM.ne.KM1)) then
 		write(*,*) 'if key=4, in input.dat KM=',KM,
      &  ' should be equal to KM1=',KM1,' in grid1.dat'
@@ -264,7 +265,7 @@ c	WRITE(250,*)'CXXA,NDP',NDP
 
 	NNEL=keyEL+1
 	KKEL=6-keyEL
-	  
+
       IF(key.EQ.2) THEN
 		if(keySUB.eq.0) then
 			T_RFM=dtime(tarray) !+++
@@ -367,9 +368,10 @@ c	WRITE(250,*)'CXXA,NDP',NDP
 
 				READ(10,*)
 				READ(10,11) UFEA(1,:KN1,IIM,IRE)
+!                  WRITE(*,*)'UFEA=',UFEA(1,:KN1,IIM,IRE)
 				READ(10,*)
 				READ(10,11) UFEA(2,:KN1,IIM,IRE)
-
+!                  WRITE(*,*)'UFEA=',UFEA(2,:KN1,IIM,IRE)
 				IF(keyEL.gt.0) THEN
 					DO I=1,KN1
 						READ(11,11) UF11(1:KM,I,IIM,IRE)
@@ -513,7 +515,7 @@ c	WRITE(250,*)'CXXA,NDP',NDP
 !c ** READ ORIGINAL kernels 
 !c
 !c      OPEN (10,file=TRIM(rootdir)//'name.dat',status='old')
-			OPEN (10,file='name.dat',status='old')
+			OPEN (10,file='PARM\name.dat',status='old')
 			READ(10,*) NRATN
 			IF(NRATN.gt.KR1par) 
      &		STOP ' in GET_MATRIX 1: NRATN.gt.KR1par !!!'
@@ -749,10 +751,11 @@ c	WRITE(250,*)'CXXA,NDP',NDP
 					ENDDO ! IRE
 					CLOSE (11)
 					if(key_org.eq.1) CLOSE (21)
-				ENDDO ! KEL	  	
+                      ENDDO ! KEL	  	
 !c **
 !c ** READ UEA MATRIX
 !c **
+!cz                  write(*,*)keyEL    
 				if(keyEL.lt.6) then
 					do KEL=1,KKEL
 						READ(10,*) name
@@ -894,8 +897,9 @@ c	WRITE(250,*)'CXXA,NDP',NDP
 			ENDIF ! keyEL
 c			write(*,*)'cxxa','return of matrix_fixget_s'
 			RETURN
-		ENDIF
+              ENDIF
 c		write(*,*)'cxxa,return of matrix_fixget_s'
+!cz          write(*,*)key_RD  
 		if(keySUB.eq.0) then
 			 T_CFM0=dtime(tarray)!+++
 		     T_CFM0=tarray(1)+tarray(2)
@@ -957,7 +961,7 @@ c		write(*,*)'cxxa,return of matrix_fixget_s'
 										IF(RRATN.NE.R(IR)) THEN
 					WRITE(*,*) 'R=',R(IR),' .NE. RATIO=',RATIO(1)
 					STOP 'in subroutine MATRIX_FIX 1'
-!c        WRITE(*,*) 'R has been changed',
+!c        WRITE(*,*) 'R has been changed'
 !c     &                  R(IR),' => ',RATIO(1)
 !c        R(IR)=RRATN				
 										ENDIF
@@ -1110,12 +1114,14 @@ c		write(*,*)'cxxa,return of matrix_fixget_s'
 
 							Y(1)=UEA(L0,J,I,IIM,IRE)
 							Y(2)=UEA(L1,J,I,IIM,IRE)
+!czj                              WRITE(*,*)Y(1)
 							UFEA(J,I,IIM,IRE)=UFEA(J,I,IIM,IRE)+
      &						LINEAR(X,Y,2,RRATN1)*RDc(IR)
-
+ 
 						ENDDO ! IR KR
 
 		UFEA(J,I,IIM,IRE)=UFEA(J,I,IIM,IRE)/sumRD 
+ !czj         WRITE(*,*)UFEA(J,I,IIM,IRE)
       
 					ENDDO ! J 2
 

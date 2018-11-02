@@ -283,7 +283,7 @@
 		integer	::	I
 		integer	::	KNSIM
 !	------------------------------------------------------------------------------------------------------
-      REAL SLOG
+      REAL(4) SLOG
       KNSIM=301
       PI = ACOS( -1.0 )
       AHR=(LOG(RMAX)-LOG(RMIN))/(KNSIM-1)
@@ -293,7 +293,7 @@
 !	  write(*,*) "AH IN SDNORM "
 !	  write(*,*) "I = ",I,"ADD = ",ADD
 !		write(*,*) "C = ",C,"S = ",S,"RM = ",RM,"RR = ",RR
-      ADD=real(SLOG(C,S,RM,RR))
+      ADD=SLOG(C,S,RM,RR)
       AA=AA+ADD*AHR
       ENDDO
       AC=AA

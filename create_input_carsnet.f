@@ -7,8 +7,6 @@
 !     Victor Estelles (victor.estelles@uv.es)
 !     Debugged and Modified by:
 !     Xia Xiangao (xxa@mail.iap.ac.cn)
-!     modiefied by 
-!     Che Huizheng (chehz@cams.cma.gov.cn) on 2013-6-12
 !     Track of versions:
 !     110914 ceform.0.8 version employed for EAC2011 (mixed mode)
 !
@@ -31,7 +29,7 @@
 !      European Aerosol Conference 2011, Manchester (United Kingdom). 
 !     -V.Estelles, M.Campanelli, M.P.Utrillas, F.Exposito, J.A.Martinez-Lozano,
 !      "Comparison of AERONET and SKYRAD4.2 inversion products retrieved from a Cimel CE318 sunphotometer", 
-!      Atmospheric Measurement Techniques, 2011.
+!      submitted to Atmospheric Measurement Techniques, 2011.
 !
       PARAMETER(KNDAYS=2000)
       PARAMETER(KNMET=1000)
@@ -181,7 +179,6 @@ c      INTEGER LOZ,LWV
 !      4. 440 NM
 !      5. 500 NM
 !      17. 1640 NM
-!     注意用中心波长最好!
 	DATA CIMELWAVE/0.4406,0.6742,0.8702,1.0197/
 	DATA MODISWAVE/0.470,0.555,0.659,0.858,1.240,1.640,2.130/
       DATA ANGKRN/0.6,1.,1.5,2.,2.5,3.,3.5,4.,4.5,5.,6.,7.,8.,9.,10.,
@@ -191,7 +188,7 @@ c      INTEGER LOZ,LWV
 
       DATA ANG0/3.,3.5,4.,5.,6.,6.,7.,8.,10.,12.,14.,16.,18.,20.,25.,
      130.,35.,40.,45.,50.,60.,70.,80.,90.,100.,120.,140.,160.,180./
-C     注意中心波长!    
+	 
       DATA CHNLBL/0.34,0.38,0.44,0.50,0.53,0.55,0.675,0.87,
      10.936,1.02,1.24,1.64/
 
@@ -217,9 +214,9 @@ C     注意中心波长!
 
 
 c     台站名称以及台站仪器标号，数据文件前缀
-c	STNS_FN='hangzhou' !!! from command line arguments
+c	STNS_FN='Shijiazuang' !!! from command line arguments
 	call getarg(1,STNS_FN)
-c	STNS_ID='808' !!! from command line arguments
+c	STNS_ID='1377' !!! from command line arguments
 	call getarg(2,STNS_ID)
 c	FDATA='hangzhou-808-1' !!! from command line arguments
 	call getarg(3,FDATA)
@@ -431,7 +428,8 @@ c	处理海上平台，将渤海反照率均设为0.10
 
 C======================================================
 !	to derive OZONE
-			X0=1000
+!			X0=1000
+            X0=3000 !Modifined by JunZhu 2018/10/11 according to the error of Main.F
 			DO ID=1,NOZONE
 				IDAY=0
 				DO J=1,METEODATE(ID,2)
@@ -439,12 +437,13 @@ C======================================================
 				ENDDO
 				IDAY=IDAY+METEODATE(ID,3)
 				KJUL=IDAY+(METEODATE(ID,1)-1990)*365
+!                  WRITE(*,*)OZONE(ID),IJUL-KJUL
 				IF(OZONE(ID).GT.0.AND.ABS(IJUL-KJUL).LT.X0)THEN
 					X0=ABS(IJUL-KJUL)
 					UO3=OZONE(ID)
 				ENDIF
 			ENDDO			
-
+!              WRITE(*,*)UO3
 !	to write output file for the AEROENT inversion 
 !	to sort right and left almucantar measurements according measurement time
 			CALL sortX(NBR,LONDEG,YYR,MMR,DDR,HR,MR,SR,
@@ -1427,7 +1426,7 @@ C$ENDI
 	SUBROUTINE GET_DAILY_ALM(FILER,CDATA,NBR,
      &	 NFILTROL,DDL,MML,YYL,HL,ML,SL,LVDIR,LVAUR,LVSKY,LTEMP,LONDEG)
 
-	PARAMETER(KNBR=1000000)
+	PARAMETER(KNBR=10000)
 	DOUBLE PRECISION LONDEG
 	INTEGER NBR,NBL
 
